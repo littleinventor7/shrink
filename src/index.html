@@ -4,13 +4,143 @@
         <div id="score2">0</div>
   </div>
   <div class="game">
-
-
+    <div class="paddle" id="paddle1"></div>
+    <div class="paddle" id="paddle2"></div>
+    <div class="center" ></div>
+    <div id="ball"></div>
   </div>
   <style>
-     /*body { background: black; color: white; font-family: sans-serif; }*/ 
+     body { 
+        background: black; 
+        padding: 0;
+        margin: 0;
+     }
+     .scoreboard {
+        display: flex;
+        align-items: center;
+        width: 500px;
+        height: 50px;
+        margin: auto;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: large;
+        font-weight: 600;
+        color: white;
+     }
+     #score1 {
+        flex: 1;
+        text-align: right;
+        padding-right: 50px;
+     }
+     #score2 {
+        flex: 1;
+        text-align: left;
+        padding-left: 50px;
+     }
+     .paddle {
+        position: absolute;
+        width: 10px;
+        height: 100px;
+        margin-top: -50px;
+        top: 0;
+        background: white;
+     }
+     #paddle1{
+        left:0;
+     }
+     #paddle2{
+        right:0;
+     }
+     #ball {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        margin-left: -10px;
+        margin-top: -10px;
+        border-radius: 50px;
+        background: white;
+     }
+     .game {
+        position: relative;
+        overflow: hidden;
+        width: 500px;
+        height: 400px;
+        margin: auto;
+        background: black;
+        border: 1px solid white;
+     }
+     .center{
+        position: absolute;
+        left: 50%;
+        top: 0;
+        height: 100%;
+        border-left: 1px dashed white;
+     }
   </style>
   <script>
-   
+    const WIDTH= 500;
+    const HEIGHT= 400;
+    const p1 = {score: 0, y: 200, up: false, down: false};
+    const p2 = {score: 0, y: 200, up: false, down: false};
+    const ball ={x:250,y:200, direction: {x:1,y:1}};
+    document.onkeydown = (event) => handleKE(event, true);
+    document.onkeyup = (event) => handleKE(event, false);
+    function handleKE(event, iskd){
+        if(event.repeat) return;
+        switch(event.key){
+            case 'w':
+                p1.up = iskd;
+                break;
+            case 's':
+                p1.down = iskd;
+                break;
+            case 'ArrowUp':
+                p2.up = iskd;
+                break;
+            case 'ArrowDown':
+                p2.down = iskd;
+                break;
+        }
+    }
+    function win(winner){
+        if(winner == 1)p1.score++;
+        else p2.score++;
+        document.getElementById('score1').innerText = p1.score;
+        document.getElementById('score2').innerText = p2.score;
+        ball.x =250;
+        ball.y =200;
+        ball.direction.x = Math.random()>0.5 ? -1 :1;
+        ball.direction.y = Math.random()>0.5 ? -1 :1;       
+    }
+    function loop(){
+        if(p1.up) p1.y= Math.max(50,p1.y-10);
+        if(p1.down) p1.y= Math.min(HEIGHT-50,p1.y+10);
+        if(p2.up) p2.y= Math.max(50,p2.y-10);
+        if(p2.down) p2.y= Math.min(HEIGHT-50,p2.y+10);
+        ball.x += ball.direction.x *3;
+        ball.y += ball.direction.y *3;
+        if (ball.y <=10){
+            ball.y=10
+            ball.direction.y =1
+        }
+        else if (ball.y >=HEIGHT- 10){
+            ball.y= HEIGHT- 10
+            ball.direction.y =-1
+        }
+        if(ball.x <= 20 && Math.abs(ball.y-p1.y)<=60){
+            ball.direction.x =1;
+        }else if(ball.x >=WIDTH-20 && Math.abs(ball.y-p2.y)<=60){
+            ball.direction.x =-1;
+        }else if( ball.x <10){
+            win(1);
+        }else if( ball.x >WIDTH-10){
+            win(2);
+        }
+        document.getElementById('paddle1').style.top = `${p1.y}px`;
+        document.getElementById('paddle2').style.top = `${p2.y}px`;
+        document.getElementById('ball').style.left = `${ball.x}px`;
+        document.getElementById('ball').style.top = `${ball.y}px`;
+
+    }
+    setInterval(loop,1000/60);
   </script>
 </body>
